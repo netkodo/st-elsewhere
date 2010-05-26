@@ -1,5 +1,5 @@
 module StElsewhere
-  
+
   # Specifies a one-to-many association across database connections.
   # This is currently an incomplete implementation and does not yet use all of the options supported by has_many
   #
@@ -31,18 +31,18 @@ module StElsewhere
   #
   # === Supported options
   # [:through]
-  #   Specifies a Join Model through which to perform the query. You can only use a <tt>:through</tt> query through a 
+  #   Specifies a Join Model through which to perform the query. You can only use a <tt>:through</tt> query through a
   #   <tt>belongs_to</tt> <tt>has_one</tt> or <tt>has_many</tt> association on the join model.
   #
   # Option examples:
   #   has_many_elsewhere :subscribers, :through => :subscriptions
   def has_many_elsewhere(association_id, options = {}, &extension)
-    association_class = association_id.to_s.classify.constantize
+    association_class = (options[:class_name] || association_id.to_s).classify.constantize
     through = options[:through]
     raise ArgumentError.new("You must include :through => association for has_many_elsewhere") if not through
     collection_accessor_methods_elsewhere(association_id, association_class, through)
   end
-  
+
   # Dynamically adds all accessor methods for the has_many_elsewhere association
   def collection_accessor_methods_elsewhere(association_id, association_class, through)
     association_singular = association_id.to_s.singularize
@@ -50,9 +50,9 @@ module StElsewhere
     through_association_singular = through.to_s.singularize
     my_class       = self
     my_foreign_key = self.to_s.foreign_key
-    target_association_class = association_singular.classify.constantize
-    target_association_foreign_key = association_singular.foreign_key
-    
+    target_association_class = association_class
+    target_association_foreign_key = association_class.to_s.foreign_key
+
     # Hospital#doctor_ids
     define_method("#{association_singular}_ids") do
       self.send("#{association_plural}").map{|a| a.id}
@@ -71,10 +71,10 @@ module StElsewhere
       through_class        = through.to_s.singularize.camelize.constantize
       current_associations = self.send("#{association_singular}_ids")
       desired_associations = self.class.associations_to_association_ids(new_associations)
-      
+
       removed_target_associations = current_associations - desired_associations
       new_target_associations     = desired_associations - current_associations
-      
+
       self.send("remove_#{association_singular}_associations", through_class, removed_target_associations)
       self.send("add_#{association_singular}_associations", through_class, association_id, new_target_associations)
     end
@@ -86,7 +86,7 @@ module StElsewhere
 
     # Hospital#remove_doctor_associations (private)
     define_method("remove_#{association_singular}_associations") do |through_class, removed_target_associations|
-      association_instances_to_remove = 
+      association_instances_to_remove =
         through_class.send("find_all_by_#{my_foreign_key}_and_#{target_association_foreign_key}", self.id, removed_target_associations)
       through_class.delete(association_instances_to_remove)
     end
