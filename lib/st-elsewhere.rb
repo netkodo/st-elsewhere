@@ -33,9 +33,13 @@ module StElsewhere
   # [:through]
   #   Specifies a Join Model through which to perform the query. You can only use a <tt>:through</tt> query through a
   #   <tt>belongs_to</tt> <tt>has_one</tt> or <tt>has_many</tt> association on the join model.
+  # [:class_name]
+  #   Specifies a the class name to use for the association, rather than
+  #   inferring from the association name.
   #
   # Option examples:
   #   has_many_elsewhere :subscribers, :through => :subscriptions
+  #   has_many_elsewhere :subscribers, :through => :subscriptions, :class_name => 'User'
   def has_many_elsewhere(association_id, options = {}, &extension)
     association_class = (options[:class_name] || association_id.to_s).classify.constantize
     through = options[:through]
