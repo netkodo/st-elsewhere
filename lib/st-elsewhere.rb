@@ -91,7 +91,7 @@ module StElsewhere
     # Hospital#remove_doctor_associations (private)
     define_method("remove_#{association_singular}_associations") do |through_class, removed_target_associations|
       association_instances_to_remove =
-        through_class.send("find_all_by_#{my_foreign_key}_and_#{target_association_foreign_key}", self.id, removed_target_associations)
+        through_class.send("find_by_#{my_foreign_key}_and_#{target_association_foreign_key}", self.id, removed_target_associations)
       through_class.delete(association_instances_to_remove)
     end
 
