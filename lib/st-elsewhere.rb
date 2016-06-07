@@ -40,6 +40,7 @@ module StElsewhere
   # Option examples:
   #   has_many_elsewhere :subscribers, :through => :subscriptions
   #   has_many_elsewhere :subscribers, :through => :subscriptions, :class_name => 'User'
+
   def has_many_elsewhere(association_id, options = {}, &extension)
     association_class = (options[:class_name] || association_id.to_s).classify.constantize
     through = options[:through]
